@@ -3,6 +3,7 @@
 
 import cv2
 import numpy as np
+import hand_segmentation as hs
 
 # get camera
 cap = cv2.VideoCapture(0)
@@ -14,6 +15,8 @@ while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
 
+    hs.process_image(frame)
+    
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
