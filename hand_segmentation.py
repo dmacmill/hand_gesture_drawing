@@ -113,9 +113,9 @@ def process_image(img):
     #print roughHull.squeeze(1).tolist() #return like this
     #cv2.drawContours(img, convexHull, -1, (0,0,0), 3)
     
-    cv2.imshow('contours', img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    #cv2.imshow('contours', img)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
     
 
 #if(__name__ == "__main__"):
