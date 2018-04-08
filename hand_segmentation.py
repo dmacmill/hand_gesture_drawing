@@ -74,12 +74,13 @@ def process_image(img):
     # Get hull: turn the contour into a polygonal shape that will have
     # verticies at the tips of the fingers.
     print i
-    roughHull = cv2.convexHull(contours[i])
-    cv2.drawContours(img, roughHull, -1, (0,0,255), 3)
-
+    if (len(contours) > 0):
+        roughHull = cv2.convexHull(contours[i])
+        cv2.drawContours(img, roughHull, -1, (0,0,255), 3)
+    
     # group the clusters together and find the mean point for each
-    convexHull = group_clusters(roughHull)
-    cv2.drawContours(img, convexHull, -1, (0,0,0), 3)
+        convexHull = group_clusters(roughHull)
+        cv2.drawContours(img, convexHull, -1, (0,0,0), 3)
     
     #print contours[i]
     #print convexHull
@@ -87,29 +88,30 @@ def process_image(img):
     # convexHull needs to return indicies for this part in order for
     # convexityDefects to notice, so we call convexHull again with
     # returnPoints = False
-    indexHull = cv2.convexHull(contours[i], returnPoints = False)
-    defects = cv2.convexityDefects(contours[i], indexHull)
+        indexHull = cv2.convexHull(contours[i], returnPoints = False)
+        defects = cv2.convexityDefects(contours[i], indexHull)
 
-    for j in range(defects.shape[0]):
-        s,e,f,d = defects[j,0]
-        start = tuple(contours[i][s])
-        end = tuple(contours[i][e])
-        far = tuple(contours[i][f])
+        for j in range(defects.shape[0]):
+            s,e,f,d = defects[j,0]
+            start = tuple(contours[i][s])
+            end = tuple(contours[i][e])
+            far = tuple(contours[i][f])
+            
+            # far[0] points should be compared to the points in convexHull 
+            # due to the fact that we've just duplicated a bunch of points
+            # from the returnPoints snafu
+            is_repeat = False
+            for hullpoint in convexHull:
+                diff_x = abs(hullpoint[0][0] - far[0][0])
+                if(diff_x <= 10):
+                    diff_y = abs(hullpoint[0][1] - far[0][1])
+                    if(diff_y <= 10):
+                        is_repeat = True
+            if(is_repeat == False):
+                convexHull = np.insert(convexHull, 0, far[0], axis=1)
+                #cv2.circle(img, tuple(far[0]), 5, [255,255,0], -1)
         
-        # far[0] points should be compared to the points in convexHull 
-        # due to the fact that we've just duplicated a bunch of points
-        # from the returnPoints snafu
-        is_repeat = False
-        for hullpoint in convexHull:
-            diff_x = abs(hullpoint[0][0] - far[0][0])
-            if(diff_x <= 10):
-                diff_y = abs(hullpoint[0][1] - far[0][1])
-                if(diff_y <= 10):
-                    is_repeat = True
-        if(is_repeat == False):
-            convexHull = np.insert(convexHull, 0, far[0], axis=1)
-            #cv2.circle(img, tuple(far[0]), 5, [255,255,0], -1)
-    
+    return handmask
     #print roughHull.squeeze(1).tolist() #return like this
     #cv2.drawContours(img, convexHull, -1, (0,0,0), 3)
     
