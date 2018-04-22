@@ -11,8 +11,8 @@ from sklearn import metrics
 
 def segment(imgHLS):
     # Segmentation:
-    skinColorUpper = np.array([20, 0.8 * 255, 0.6 * 255])
-    skinColorLower = np.array([0, 0.1 * 255, 0.09 * 255])
+    skinColorUpper = np.array([25, 0.8 * 255, 0.6 * 255])
+    skinColorLower = np.array([5, 0.1 * 255, 0.09 * 255])
 
     rangeMask = cv2.inRange(imgHLS, skinColorLower, skinColorUpper)
     blurred = cv2.blur(rangeMask, (15,15))
@@ -36,7 +36,6 @@ def get_contours(handmask):
 def group_clusters(roughHull):
     # AffinityPropagation algorithm:
     af = AffinityPropagation(preference=-100).fit(roughHull.squeeze(1))
-    print "Fingers up: " + str(len(af.cluster_centers_indices_) - 2)
     cluster_indicators = af.fit_predict(roughHull.squeeze(1))
     
     # map the list that the affinity provided to the current roughHull, then
@@ -73,18 +72,14 @@ def process_image(img):
     
     # Get hull: turn the contour into a polygonal shape that will have
     # verticies at the tips of the fingers.
-    print i
     if (len(contours) > 0):
         roughHull = cv2.convexHull(contours[i])
         cv2.drawContours(img, roughHull, -1, (0,0,255), 3)
     
-    # group the clusters together and find the mean point for each
+        # group the clusters together and find the mean point for each
         convexHull = group_clusters(roughHull)
         cv2.drawContours(img, convexHull, -1, (0,0,0), 3)
     
-    #print contours[i]
-    #print convexHull
-
     # convexHull needs to return indicies for this part in order for
     # convexityDefects to notice, so we call convexHull again with
     # returnPoints = False
@@ -111,7 +106,7 @@ def process_image(img):
                 convexHull = np.insert(convexHull, 0, far[0], axis=1)
                 #cv2.circle(img, tuple(far[0]), 5, [255,255,0], -1)
         
-    return handmask
+    return img
     #print roughHull.squeeze(1).tolist() #return like this
     #cv2.drawContours(img, convexHull, -1, (0,0,0), 3)
     
