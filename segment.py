@@ -7,9 +7,11 @@ BASEDIR = "/home/daniel/Documents/CV/hand_gesture_drawing/"
 READDIR = "processed/hand_gesture_21/"
 SAVEDIR = "processed/masked_21/"
 
-# Crop, Resize, Save as bmp
-
 def mask(img):
+    """ mask: image -> image
+    takes color image of any dimension and returns black and white threshold 
+    that attempts to isolate image of hand
+    """
     imgHLS = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
 
     skinColorUpper = np.array([25, 0.8 * 255, 0.6 * 255])
@@ -21,7 +23,14 @@ def mask(img):
     return handmask
 
 def get_square(image,square_size):
-
+    """ get_square: image, int -> image
+    Get square resizes an image in such a way that its aspect ratio is kept 
+    intact.
+ 
+    From https://stackoverflow.com/a/49208362
+    """
+    # get height, width, and depth if we can from the image, find the diff
+    # between these vals and the vals of the new image
     height,width,depth=image.shape[0], image.shape[1], -1
     if(len(image.shape) == 3):
         depth = image.shape[2]
@@ -31,7 +40,7 @@ def get_square(image,square_size):
       differ=width
     differ+=4
     mask = None
-
+    
     x_pos=int((differ-width)/2)
     y_pos=int((differ-height)/2)
     if(depth == -1):
@@ -45,11 +54,16 @@ def get_square(image,square_size):
     return mask
 
 def crop(handmask):
-    dst = np.zeros((handmask.shape[0], handmask.shape[1], 0), dtype="uint8")
+    """ crop: img -> img
+    takes handmask and crops image around the largest blob, will return 64 x 64
+    """
+    # Get the contours of the handmask
     _,contours,hierarchy = cv2.findContours(
         handmask,
         cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE)
+
+    # Retrieve index of the largest contour (do by area instead?)
     index_current_largest = 0
     i = 0
     for c in contours:
@@ -57,15 +71,19 @@ def crop(handmask):
             index_current_largest = i
         i+=1
     if(len(contours) == 0):
-        return handmask
-    #return contours, index_current_largest
+        return None
+    
+    # Bound the box around the largest contour, crop around it.
+    # Filter out blobs that are way too tiny
     br=cv2.boundingRect(contours[index_current_largest])
-    print br
+    if(len(br) == 4):
+        if(br[2] <= 40 or br[3] <= 40):
+            return None
     print contours[index_current_largest].shape
-    print dst.shape
     crop_img = handmask[br[1]:br[1]+br[3] , br[0]:br[0]+br[2]]
-    #cv2.drawContours(dst, contours, index_current_largest, (255,255,255), 3)
     return get_square(crop_img, 64)
+
+###############################################################################
 
 if not os.path.exists(SAVEDIR):
     os.makedirs(SAVEDIR)
@@ -76,4 +94,5 @@ for filename in os.listdir(READDIR):
         img = cv2.imread(BASEDIR + READDIR + filename, 1)
         handmask = mask(img)
         cropmask = crop(handmask)
-        cv2.imwrite(SAVEDIR + filename, cropmask)
+        if(cropmask != None):
+            cv2.imwrite(SAVEDIR + filename.replace("jpg", "bmp"), cropmask)
