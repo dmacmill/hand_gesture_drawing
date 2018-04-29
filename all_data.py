@@ -138,10 +138,8 @@ def imgs_input_fn(filenames, labels=None, perform_shuffle=False, repeat_count=1,
         image_string = tf.read_file(filename)
         image = tf.image.decode_image(image_string, channels=3)
         image.set_shape([None, None, None])
-        image = tf.image.resize_images(image, [150, 150])
-        image = tf.subtract(image, 116.779) # Zero-center by mean pixel
-        image.set_shape([150, 150, 3])
-        image = tf.reverse(image, axis=[2]) # 'RGB'->'BGR'
+        image = tf.image.resize_images(image, [64, 64])
+        image.set_shape([64, 64, 1])
         d = dict(zip([input_name], [image])), label
         return d
     if labels is None:
@@ -208,7 +206,7 @@ def get_sliced_data(evalu):
 
 # Reads an image from a file, decodes it into a dense tensor, and resizes it
 # to a fixed shape.
-def _parse_function(filename, label):
+def a_parse_function(filename, label):
   image_string = tf.read_file(filename)
   image_decoded = tf.image.decode_image(image_string)
   image_resized = tf.image.resize_images(image_decoded, [64, 64])
@@ -234,7 +232,7 @@ filenames, labels = get_sliced_data(False)
 
 
 # Train the model
-train_input_fn = imgs_input_fn(filenames, labels=labels, perform_shuffle=True, repeat_count=5, batch_size=200)
+train_input_fn = lambda: imgs_input_fn(filenames, labels=labels, perform_shuffle=True, repeat_count=5, batch_size=200)
 
 
 mnist_classifier.train(
@@ -245,7 +243,7 @@ mnist_classifier.train(
 
 
 # Evaluate the model and print results
-eval_input_fn = imgs_input_fn(filenames, labels=labels, perform_shuffle=False, repeat_count=1, batch_size=1)
+eval_input_fn = lambda: imgs_input_fn(filenames, labels=labels, perform_shuffle=False, repeat_count=1, batch_size=1)
 
 
 eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
