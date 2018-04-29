@@ -13,7 +13,7 @@ def get_sliced_data(evalu):
     raw_binary = []
     tensors = []
     for dirname in os.listdir(base_dir):
-        dirnum = int(dirname)
+        dirnum = int(dirname) - 1
         for filename in os.listdir(base_dir + dirname):
             if (filename.startswith('00000') and evalu) or (not filename.startswith('00000') and not evalu):
                 filenames.append( base_dir + dirname + '/' + filename)
