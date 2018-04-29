@@ -242,6 +242,38 @@ def main(unused_argv):
   logging_hook = tf.train.LoggingTensorHook(
       tensors=tensors_to_log, every_n_iter=50)
 
+
+
+
+
+
+
+
+
+
+
+train_spec = tf.estimator.TrainSpec(input_fn=lambda: imgs_input_fn(test_files,
+                                                                   labels=test_labels,
+                                                                   perform_shuffle=True,
+                                                                   repeat_count=5,
+                                                                   batch_size=20), 
+                                    max_steps=500)
+eval_spec = tf.estimator.EvalSpec(input_fn=lambda: imgs_input_fn(test_files,
+                                                                 labels=test_labels,
+                                                                 perform_shuffle=False,
+                                                                 batch_size=1))
+
+tf.estimator.train_and_evaluate(est_c`atvsdog, train_spec, eval_spec)
+
+
+
+
+
+
+
+
+
+
   # Train the model
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": train_data},
