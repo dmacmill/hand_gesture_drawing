@@ -20,6 +20,7 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 import os
+import cv2 as cv
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -115,39 +116,95 @@ def cnn_model_fn(features, labels, mode):
       mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 
+
+
+
+
+
+
+def dataset_input_fn(filenames):
+  # filenames = ["/var/data/file1.tfrecord", "/var/data/file2.tfrecord"]
+  dataset = tf.data.TFRecordDataset(filenames)
+
+  # Use `tf.parse_single_example()` to extract data from a `tf.Example`
+  # protocol buffer, and perform any additional per-record preprocessing.
+  def parser(record):
+    keys_to_features = {
+        "image_data": tf.FixedLenFeature((), tf.string, default_value=""),
+        "date_time": tf.FixedLenFeature((), tf.int64, default_value=""),
+        "label": tf.FixedLenFeature((), tf.int64,
+                                    default_value=tf.zeros([], dtype=tf.int64)),
+    }
+    parsed = tf.parse_single_example(record, keys_to_features)
+
+    # Perform additional preprocessing on the parsed data.
+    image = tf.image.decode_jpeg(parsed["image_data"])
+    image = tf.reshape(image, [299, 299, 1])
+    label = tf.cast(parsed["label"], tf.int32)
+
+    return {"image_data": image, "date_time": parsed["date_time"]}, label
+
+  # Use `Dataset.map()` to build a pair of a feature dictionary and a label
+  # tensor for each example.
+  dataset = dataset.map(parser)
+  dataset = dataset.shuffle(buffer_size=10000)
+  dataset = dataset.batch(32)
+  dataset = dataset.repeat(num_epochs)
+  iterator = dataset.make_one_shot_iterator()
+
+  # `features` is a dictionary in which each value is a batch of values for
+  # that feature; `labels` is a batch of labels.
+  features, labels = iterator.get_next()
+  return features, labels
+
+
+
+
+
+
+
+
+
+
 def _parse_function(filename, label):
-  print filename
+  print(filename)
   image_string = tf.read_file(filename)
   image_decoded = tf.image.decode_image(image_string)
-  image_resized = tf.image.resize_images(image_decoded, [64, 64])
-  return image_resized, label
+  # image_resized = tf.image.resize_images(image_decoded, [64, 64])
+  return image_decoded, label
 
-def get_sliced_data():
+def get_sliced_data(evalu):
     base_dir = '/dataset/processed/masked/'
     filenames = []
     labels = []
+    raw_binary = []
     for dirname in os.listdir(base_dir):
         dirnum = int(dirname)
         for filename in os.listdir(base_dir + dirname):
-            if not filename.startswith('00000'):
+            if (filename.startswith('00000') and evalu) or (not filename.startswith('00000') and not evalu):
                 filenames.append( base_dir + dirname + '/' + filename)
                 labels.append( dirnum )
-    print(str(len(filenames))
-    print(str(len(labels))
-    return tf.data.Dataset.from_tensor_slices((filenames, labels))
+                img = cv.imread(filenames[-1])
+                img_data = []
+                for i in range(0, 64):
+                    new_row = []
+                    for j in range(0, 64):
+                        if img[i][j][0] > 100:
+                            new_row.append(1)
+                        else: 
+                            new_row.append(0)
+                            
+                    img_data.append(new_row)
+                raw_binary.append(img_data)
 
 
-def get_sliced_eval_data():
-    base_dir = '/dataset/processed/masked/'
-    filenames = []
-    labels = []
-    for dirname in os.listdir(base_dir):
-        for filename in os.listdir(base_dir + dirname):
-            if filename.startswith('00000'):
-                filenames += base_dir + dirname + '/' + filename
-                labels += dirname
 
-    return tf.data.Dataset.from_tensor_slices((filenames, labels))
+    print(str(len(raw_binary)))
+    print(str(len(labels)))
+    # return tf.data.Dataset.from_tensor_slices((raw_binary, labels))
+    return (tf.convert_to_tensor(raw_binary,dtype=tf.float16), np.array(labels))
+
+
 
 
 def main(unused_argv):
@@ -157,22 +214,27 @@ def main(unused_argv):
   #train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
   #eval_data = mnist.test.images  # Returns np.array
   #eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
-  dataset = get_sliced_data()
-  dataset = dataset.map(_parse_function)
-  train_data = dataset.train.images
-  train_labels = dataset.train.labels
   
-  eval_data = dataset.test.images
-  eval_labels = dataset.test.labels
+  train_data, train_labels = get_sliced_data(False)
+
+  #dataset = get_sliced_data(False)
+  ##dataset = dataset.map(_parse_function)
+  #train_data = dataset.images
+  #train_labels = dataset.labels
   
-  #evalu = get_sliced_eval_data()
-  #evalu = evalu.map(_parse_function)
+  #eval_data = dataset.test.images
+  #eval_labels = dataset.test.labels
+  
+  eval_data, eval_labels = get_sliced_data(True)
+  
+  #evalu = get_sliced_data(True)
+  ##evalu = evalu.map(_parse_function)
   #eval_data = evalu.images
   #eval_labels = evalu.labels
   
   # Create the Estimator
   mnist_classifier = tf.estimator.Estimator(
-      model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model")
+      model_fn=cnn_model_fn, model_dir="/tmp/hands")
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
@@ -187,10 +249,14 @@ def main(unused_argv):
       batch_size=100,
       num_epochs=None,
       shuffle=True)
+
+
   mnist_classifier.train(
       input_fn=train_input_fn,
       steps=20000,
       hooks=[logging_hook])
+
+
 
   # Evaluate the model and print results
   eval_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -198,6 +264,7 @@ def main(unused_argv):
       y=eval_labels,
       num_epochs=1,
       shuffle=False)
+
   eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
 
