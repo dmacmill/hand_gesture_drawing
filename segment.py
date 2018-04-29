@@ -3,9 +3,10 @@ import os
 import cv2
 import numpy as np
 
-BASEDIR = "/home/daniel/Documents/CV/hand_gesture_drawing/"
-READDIR = "processed/hand_gesture_21/"
-SAVEDIR = "processed/masked_21/"
+BASEDIR = "./dataset/"
+READDIR = "./dataset/processed/"
+SAVEDIR = "./dataset/processed/masked/"
+
 
 def mask(img):
     """ mask: image -> image
@@ -88,11 +89,20 @@ def crop(handmask):
 if not os.path.exists(SAVEDIR):
     os.makedirs(SAVEDIR)
 
-for filename in os.listdir(READDIR):
-    if(filename.endswith(".jpg")):
-        print filename
-        img = cv2.imread(BASEDIR + READDIR + filename, 1)
-        handmask = mask(img)
-        cropmask = crop(handmask)
-        if(cropmask != None):
-            cv2.imwrite(SAVEDIR + filename.replace("jpg", "bmp"), cropmask)
+count = 0
+for dirname in os.listdir(READDIR):
+    print dirname
+    count += 1
+    save_dir = SAVEDIR + "/" + str(count)
+    if not os.path.exists(save_dir):
+        print "making directory: " + save_dir
+        os.makedirs(save_dir)
+
+    for filename in os.listdir(READDIR + dirname):
+        if(filename.endswith(".jpg")):
+            print filename
+            img = cv2.imread(READDIR + '/' + dirname + '/' + filename, 1)
+            handmask = mask(img)
+            cropmask = crop(handmask)
+            if(cropmask is not None):
+                cv2.imwrite(SAVEDIR + str(count) + '/'  + filename.replace("jpg", "bmp"), cropmask)
