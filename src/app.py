@@ -3,6 +3,8 @@
 import cv2
 
 import process
+import ml_model
+
 import numpy as np
 
 
@@ -15,9 +17,7 @@ while(True):
 
     # process frame w/ ML
     img_data, mask = process.process(frame)
-    t = np.array(img_data, dtype=np.float16)
-    t = t.flatten()
-    frame_data = np.array([t])
+    gesture = ml_model.predict(img_data)
 
 
     # Display the resulting frame
