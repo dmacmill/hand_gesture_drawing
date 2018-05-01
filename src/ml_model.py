@@ -24,7 +24,7 @@ def predict_with_model(img_data):
 
     test_input_fn = tf.estimator.inputs.numpy_input_fn(
         x={"x": frame_data},
-        y=np.array([]),
+        y=np.array(['0']),
         num_epochs=1,
         shuffle=False
     )
@@ -39,5 +39,5 @@ def process_raw_predictions(pred_data):
 
 
 def predict(img_data):
-    predictions = predict_with_model(img_data)
-    return process_raw_predictions(predictions)
+    predictions = list(predict_with_model(img_data))
+    return process_raw_predictions(predictions[0])

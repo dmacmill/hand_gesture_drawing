@@ -17,8 +17,16 @@ while(True):
 
     # process frame w/ ML
     img_data, mask = process.process(frame)
-    gesture = ml_model.predict(img_data)
 
+    if  len(img_data) == 64:
+        gesture = ml_model.predict(img_data)
+        print "***************************************"
+        print ""
+        print gesture
+        print ""
+        print "***************************************"
+    else:
+        print "img_data is too short: " + len(img_data)
 
     # Display the resulting frame
     cv2.imshow('frame', frame)
