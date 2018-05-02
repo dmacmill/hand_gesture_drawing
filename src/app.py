@@ -26,7 +26,7 @@ while(True):
         print ""
         print "***************************************"
     else:
-        print "img_data is too short: " + len(img_data)
+        print "img_data is too short: " + str(len(img_data))
 
     # Display the resulting frame
     cv2.imshow('frame', frame)
