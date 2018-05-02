@@ -5,40 +5,50 @@
 
 
 \title{Hand Gesture Recognition}
-\author{Maximillian Markmanrud, Daniel MacMillan}
+\author{Maximilian Markmanrud, Daniel MacMillan}
 
 \begin{document}
 
 \maketitle
 
 \section{Goal}
-The field of computer vision has changed dramatically with recent innovations in machine learning algorithms, with innovations in convolutional neural networks (CNN) and deep learning being extraordinarily influential in modern innovations. In this project our goal was to look at different ways to have the user control an app that tracks the location of the finger tips and see which methods of control are more intuitive and responsive than others. In this project we also looked at ways to implement a simple finger painting application - with and without a CNN - and then analyse the benefits and drawbacks of the two methods.
+The field of computer vision has changed dramatically with recent innovations in machine learning algorithms, with innovations in convolutional neural networks (CNN) and deep learning being extraordinarily influential in modern innovations. In this project our goal was to look at different ways to have the user control an app that tracks the location of the finger tips and see which methods of control are more intuitive and responsive than others. Since we are also concerned about the way augmented reality headsets with cameras that capture depth data are still relatively inaccessable, the goal is also to achieve static hand gesture recognition without the use of the depth channel. We also looked at ways to implement a simple finger painting application - with and without a CNN - and then analyse the benefits and drawbacks of the two methods.\\
 
 \section{Introduction}
 %Why should we care about the PROBLEM?
-Augmented Reality as a technology is catching on with 
+Augmented Reality as a technology has had a great deal of commercial success in recent years, and applications for AR often require the recognition of hand gestures in order to give the user the tools necessary to interface with UI elements. In order for these tools to be useful the gestures must be easily recognizable by the static gesture classifier, and the static gesture classifier must be able to distinguish one gesture from another gesture. There are many actions that can be taken that can make it simpler to achieve these goals, including but not limited to having a large and robust dataset for the CNN to learn from, having an effective image mask to improve learning accuracy, having cameras take pictures with depth data, and controlling for lighting conditions.\\
 
 %Why should we care about the METHOD?
+Our project had only dealt with RGB color images to view the user's hand because our most robust dataset had their images limited to the RGB color channel. We also only look for RGB images because many cameras currently on the market are still limited to the RGB color channels.\\
+
+The CNN we used for the project was TensorFlow's built in DNNClassifier, which is a popular classifer that takes annotated image data and does all the work of classifying images. Another approach we had implemented involved no deep learning, and was simply a convex hull generated from the masked input image with a clustering algorithm to group nearby hullpoints together. This approach was thought to be better for processing on a computer with no graphics card than any other deep learning approach.\\
 
 \section{Background}
-
+% what have others already tried? cite work and explain
+Others have tried methods of recognizing hand gestures without using deep learning. One paper uses a method that involves running a filter over the image that looks for skintone and thresholds for it, and then proceeds to use a distance filter on the binary hand mask that will make it easier to separate the palm from the fingers [1]. Another approach from an article had also taken the hand mask but then takes the convex hull of the entire hand and the points that are on the outside will be the fingertips, and then the defects between two points will be marked as the bottom of the fingers [2].
 
 \section{Approach}
-
+% what is your method? explain all variables and formulas
 
 \section{Dataset}
-
+% what data was used? use examples if possible
 
 \section{Evaluation}
-
+% feature extraction, experiment setup and results
 
 \section{Conclusion}
 
 
 \section{Team Roles}
 
+The project had many separate workstreams that needed completion.
+Dan handled dataset retreival and image segmentation.
+Max worked on machine learning and application construction.
+Both worked on data manipulation and documentation.
+
 
 \section{References}
-
+        [1]  Zhi-hua Chen, Jung-Tae Kim, Jianning Liang, Jing Zhang, and Yu-Bo Yuan, “Real-Time Hand Gesture Recognition Using Finger Segmentation,” The Scientific World Journal, vol. 2014, Article ID 267872, 9 pages, 2014. https://doi.org/10.1155/2014/267872.\\\\
+        [2]  https://medium.com/@muehler.v/simple-hand-gesture-recognition-using-opencv-and-javascript-eb3d6ced28a0\\\\
 
 \end{document}
