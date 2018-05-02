@@ -33,11 +33,11 @@ def predict_with_model(img_data):
 
 
 def process_raw_predictions(pred_data):
-    probs = list(pred_data['predictions'])
+    probs = list(pred_data['probabilities'])
     return probs.index(max(probs))
 
 
 
 def predict(img_data):
-    predictions = predict_with_model(img_data)
+    predictions = list(predict_with_model(img_data))
     return process_raw_predictions(predictions[0])
