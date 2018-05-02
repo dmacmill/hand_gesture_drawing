@@ -39,5 +39,5 @@ def process_raw_predictions(pred_data):
 
 
 def predict(img_data):
-    predictions = list(predict_with_model(img_data))
+    predictions = predict_with_model(img_data)
     return process_raw_predictions(predictions[0])
