@@ -20,8 +20,11 @@ make sure you are running python 2.7
 
 ## References
 Algorithms implemented:
+
 https://medium.com/@muehler.v/simple-hand-gesture-recognition-using-opencv-and-javascript-eb3d6ced28a0
+
 https://www.hindawi.com/journals/tswj/2014/267872/cta/
 
 Dataset:
+
 Y. Zhang, C. Cao, J. Cheng and H. Lu, "EgoGesture: A New Dataset and Benchmark for Egocentric Hand Gesture Recognition," IEEE Transactions on Multimedia (T-MM), 2018.
