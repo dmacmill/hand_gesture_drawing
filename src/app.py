@@ -17,6 +17,7 @@ last_gesture = 0
 lost_gesture = 0
 
 count = 0
+num_empty = 30
 
 while(True):
     # Capture frame-by-frame
@@ -44,10 +45,12 @@ while(True):
             pts.append(point)
         else: 
             lost_gesture += 1
-            if lost_gesture > 50:
+            if lost_gesture > num_empty:
                 lost_gesture = 0
                 polys.append(( last_gesture, pts ))
                 pts = []
+            else:
+                print (num_empty-lost_gesture) " blank frames left until we draw"
 
         draw.go(polys, frame)
     else:
