@@ -50,7 +50,7 @@ while(True):
                 polys.append(( last_gesture, pts ))
                 pts = []
             else:
-                print (num_empty-lost_gesture) " blank frames left until we draw"
+                print num_empty-lost_gesture + " blank frames left until we draw"
 
         draw.go(polys, frame)
     else:
