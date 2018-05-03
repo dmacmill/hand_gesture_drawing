@@ -1,9 +1,5 @@
 # hand_gesture_drawing
 
-TO DO: 
-- Filter through the handmasked data to find suitable images to become part of the dataset fed to the ML algorithm
-- Use EgoGesture Dataset to make a classifier [OK, 0-6, photoframe, static fist, C shape] 
-
 ## File Descriptions
 
 ### segment.py
