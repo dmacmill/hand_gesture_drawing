@@ -3,6 +3,22 @@ Written by Maximilian Markmanrud and Daniel MacMillan
 
 The goal of this project was to implement hand gesture recognition without the need for depth data using two different methods - with a CNN and without a CNN.
 
+## Dependencies
+TensorFlow
+
+https://www.tensorflow.org/install/
+
+OpenCV 2.0
+
+https://docs.opencv.org/2.4/doc/tutorials/introduction/linux_install/linux_install.html
+
+Numpy
+
+http://www.numpy.org/
+
+Scikit-learn
+
+http://scikit-learn.org/stable/install.html
 
 ## Running Gesture Recognizer with CNN
 ```
