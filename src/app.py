@@ -4,27 +4,52 @@ import cv2
 
 import process
 import ml_model
-
+import draw
 import numpy as np
 
 
 # get camera
 cap = cv2.VideoCapture(0)
 
+pts = []
+polys = []
+last_gesture = 0
+lost_gesture = 0
+
+count = 0
+
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
-
+    count += 1
     # process frame w/ ML
-    img_data, mask = process.process(frame)
+    img_data, mask, point = process.process(frame)
 
     if  len(img_data) == 64:
+
         gesture = ml_model.predict(img_data)
+        
         print "***************************************"
         print ""
         print gesture
-        print ""
+        print "" 
+        print pts 
+        print "" 
+        print polys 
+        print "" 
         print "***************************************"
+        
+        if gesture > 0:
+            last_gesture = gesture
+            pts.append(point)
+        else: 
+            lost_gesture += 1
+            if lost_gesture > 50:
+                lost_gesture = 0
+                polys.append(( last_gesture, pts ))
+                pts = []
+
+        draw.go(polys, frame)
     else:
         print "img_data is too short: " + str(len(img_data))
 
