@@ -4,9 +4,16 @@ import numpy as np
 
 def process(img):
     handmask = mask(img)
-    cropmask = crop(handmask)
-    binary = get_bits(cropmask)
-    return binary, cropmask
+    
+    if handmask is not None:
+        print handmask
+        cropmask, br = crop(handmask)
+
+        binary = get_bits(cropmask)
+        
+        return binary, cropmask, (br[0],br[1])
+    else:
+        return None, None, None 
 
 def mask(img):
     """ mask: image -> image
@@ -82,7 +89,7 @@ def crop(handmask):
             return None
     # print contours[index_current_largest].shape
     crop_img = handmask[br[1]:br[1]+br[3] , br[0]:br[0]+br[2]]
-    return get_square(crop_img, 64)
+    return get_square(crop_img, 64), br
 
 
 def get_bits(img):
